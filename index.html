@@ -297,7 +297,7 @@ h1,.hero h1,.sech h2{font-family:"Montserrat","Be Vietnam Pro",sans-serif;font-w
 (function(){
 var D=JSON.parse(document.getElementById('data').textContent),items=D.items,PAGE=48,shown=PAGE,view='grid',page='',quick='';
 var store={get:function(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-var saved=store.get('aka-saved',{});
+var saved=store.get('cdd-saved',{});
 var $=function(id){return document.getElementById(id)};
 function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 var COLORS=['#1d4ed8','#0f766e','#b45309','#7c3aed','#be123c','#0369a1','#4d7c0f','#a21caf'];
@@ -327,7 +327,7 @@ var SEL=Object.keys(F),EXTRA=['fPlat','fFact','fHook','fSaved'];
 SEL.forEach(function(id){var s=$(id);var o0=el('option',null,F[id].t);o0.value='';s.appendChild(o0);F[id].o.forEach(function(p){var o=el('option',null,p[1]);o.value=p[0];o.dataset.l=p[1];s.appendChild(o)})});
 // Du an: checklist, luu lua chon trong trinh duyet
 var PROJ=D.projects.filter(function(p){return items.some(function(x){return x.p===p})});
-var projSel=new Set(store.get('aka-proj',[]).filter(function(p){return PROJ.indexOf(p)>=0}));
+var projSel=new Set(store.get('cdd-proj',[]).filter(function(p){return PROJ.indexOf(p)>=0}));
 var QUICK={win:function(x){return x.days>30},fresh:function(x){return x.days<=7},scale:function(x){return x.n>=3},video:function(x){return x.fmtL==='Video'}};
 var QLABEL={win:'Chạy trên 30 ngày',fresh:'Mới trong 7 ngày',scale:'Đang nhân bản',video:'Chỉ video'};
 function vals(){var v={};SEL.forEach(function(id){v[id]=$(id).value});return v}
@@ -341,7 +341,7 @@ function facets(v,q){SEL.forEach(function(id){var s=$(id),pool=items.filter(func
  var nExtra=EXTRA.filter(function(id){return v[id]}).length;$('moreF').classList.toggle('on',nExtra>0);$('moreF').firstChild.textContent=(nExtra?'Thêm bộ lọc · '+nExtra:'Thêm bộ lọc')+' '}
 function renderProjList(pool){var list=$('projList'),q=norm($('projQ').value.trim());list.textContent='';
  PROJ.forEach(function(p){if(q&&norm(p).indexOf(q)<0)return;var n=pool.filter(function(x){return x.p===p}).length;var lb=el('label',n?null:'zero'),cb=el('input');cb.type='checkbox';cb.checked=projSel.has(p);
-  cb.onchange=function(){if(cb.checked)projSel.add(p);else projSel.delete(p);if(projSel.size===PROJ.length)projSel.clear();store.set('aka-proj',[...projSel]);page='';go()};
+  cb.onchange=function(){if(cb.checked)projSel.add(p);else projSel.delete(p);if(projSel.size===PROJ.length)projSel.clear();store.set('cdd-proj',[...projSel]);page='';go()};
   lb.appendChild(cb);lb.appendChild(el('span',null,p));lb.appendChild(el('b',null,n));list.appendChild(lb)});
  var lbl=!projSel.size?'Tất cả dự án ('+PROJ.length+')':projSel.size===1?'Dự án: '+[...projSel][0]:projSel.size+' dự án đã chọn';$('projLabel').textContent=lbl;$('projBtn').classList.toggle('on',projSel.size>0)}
 function kpis(r){var k=$('kpis');k.textContent='';var pages={};r.forEach(function(x){pages[x.page]=1});var vid=r.filter(QUICK.video).length;
@@ -354,12 +354,12 @@ function topPages(r){var box=$('pages');box.textContent='';var o={};r.forEach(fu
  if(!top.length&&!page)return;if(page&&top.indexOf(page)<0)top.unshift(page);box.appendChild(el('span',null,'Page có nhiều mẫu nhất:'));
  top.forEach(function(p){var b=el('button',null,p);b.appendChild(el('b',null,o[p]||0));b.type='button';b.title='Bấm để chỉ xem page này';b.setAttribute('aria-pressed',String(p===page));b.onclick=function(){page=page===p?'':p;go()};box.appendChild(b)})}
 function activePills(){var a=$('active');a.textContent='';function pill(t,fn){var b=el('button','pill',t+'  ×');b.type='button';b.title='Bỏ lọc này';b.onclick=fn;a.appendChild(b)}
- if(projSel.size)pill('Dự án: '+[...projSel].join(', '),function(){projSel.clear();store.set('aka-proj',[]);go()});
+ if(projSel.size)pill('Dự án: '+[...projSel].join(', '),function(){projSel.clear();store.set('cdd-proj',[]);go()});
  if($('q').value.trim())pill('Tìm: '+$('q').value.trim(),function(){$('q').value='';go()});
  SEL.forEach(function(id){var s=$(id);if(s.value)pill(s.options[s.selectedIndex].dataset.l,function(){s.value='';go()})});
  if(page)pill('Page: '+page,function(){page='';go()});if(quick)pill(QLABEL[quick],function(){quick='';go()})}
 function saveBtn(x){var b=el('button','save',saved[x.id]?'★':'☆');b.type='button';b.setAttribute('aria-pressed',String(!!saved[x.id]));b.setAttribute('aria-label','Lưu mẫu');b.title=saved[x.id]?'Bỏ lưu':'Lưu mẫu hay';
- b.onclick=function(){if(saved[x.id])delete saved[x.id];else saved[x.id]=1;store.set('aka-saved',saved);b.textContent=saved[x.id]?'★':'☆';b.setAttribute('aria-pressed',String(!!saved[x.id]));b.title=saved[x.id]?'Bỏ lưu':'Lưu mẫu hay';if($('fSaved').value)go();else facets(vals(),norm($('q').value.trim()))};return b}
+ b.onclick=function(){if(saved[x.id])delete saved[x.id];else saved[x.id]=1;store.set('cdd-saved',saved);b.textContent=saved[x.id]?'★':'☆';b.setAttribute('aria-pressed',String(!!saved[x.id]));b.title=saved[x.id]?'Bỏ lưu':'Lưu mẫu hay';if($('fSaved').value)go();else facets(vals(),norm($('q').value.trim()))};return b}
 function link(href,text,cls){var a=el('a',cls,text);a.href=href;a.target='_blank';a.rel='noopener';return a}
 function stageBadge(x){return el('span','st '+x.stage,STAGE[x.stage]+(x.stage==='win'?' 🏆':''))}
 function card(x){var c=el('article','card');
@@ -394,20 +394,20 @@ function render(){var v=vals(),q=norm($('q').value.trim());
 $('more').onclick=function(){shown+=PAGE;render()};
 var timer;$('q').oninput=function(){clearTimeout(timer);timer=setTimeout(go,150)};
 SEL.concat(['sort']).forEach(function(id){$(id).onchange=go});
-$('reset').onclick=function(){$('q').value='';SEL.forEach(function(id){$(id).value=''});page='';quick='';projSel.clear();store.set('aka-proj',[]);go()};
+$('reset').onclick=function(){$('q').value='';SEL.forEach(function(id){$(id).value=''});page='';quick='';projSel.clear();store.set('cdd-proj',[]);go()};
 // Mo / dong checklist du an
 function openPop(o){$('projPop').hidden=!o;$('projBtn').setAttribute('aria-expanded',String(o));if(o){$('projQ').value='';renderProjList(items.filter(function(x){return pass(x,vals(),norm($('q').value.trim()),'proj')}));$('projQ').focus()}}
 $('projBtn').onclick=function(){openPop($('projPop').hidden)};
 $('projQ').oninput=function(){renderProjList(items.filter(function(x){return pass(x,vals(),norm($('q').value.trim()),'proj')}))};
-$('projAll').onclick=function(){projSel.clear();store.set('aka-proj',[]);go()};
+$('projAll').onclick=function(){projSel.clear();store.set('cdd-proj',[]);go()};
 document.addEventListener('click',function(e){if(!$('projBox').contains(e.target))openPop(false)});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')openPop(false);if(e.key==='/'&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();$('q').focus()}});
-var ex=store.get('aka-extra',false);function setExtra(o){$('extra').hidden=!o;$('moreF').setAttribute('aria-expanded',String(o));$('moreF').lastChild.textContent=o?'▲':'▼';store.set('aka-extra',o)}
+var ex=store.get('cdd-extra',false);function setExtra(o){$('extra').hidden=!o;$('moreF').setAttribute('aria-expanded',String(o));$('moreF').lastChild.textContent=o?'▲':'▼';store.set('cdd-extra',o)}
 $('moreF').onclick=function(){setExtra($('extra').hidden)};
-function setView(v){view=v;$('vGrid').setAttribute('aria-pressed',String(v==='grid'));$('vTable').setAttribute('aria-pressed',String(v==='table'));store.set('aka-view',v);go()}
+function setView(v){view=v;$('vGrid').setAttribute('aria-pressed',String(v==='grid'));$('vTable').setAttribute('aria-pressed',String(v==='table'));store.set('cdd-view',v);go()}
 $('vGrid').onclick=function(){setView('grid')};$('vTable').onclick=function(){setView('table')};
-var th=store.get('aka-theme','');if(th)document.documentElement.setAttribute('data-theme',th);
-$('theme').onclick=function(){var cur=document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var n=cur==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);store.set('aka-theme',n)};
+var th=store.get('cdd-theme','');if(th)document.documentElement.setAttribute('data-theme',th);
+$('theme').onclick=function(){var cur=document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var n=cur==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);store.set('cdd-theme',n)};
 // Tong quan, noi bat, du an: tinh tren toan bo du lieu
 var nf=function(v){return Number(v).toLocaleString('vi-VN')};
 function toLib(){var t=$('thu-vien');if(t)t.scrollIntoView()}
@@ -429,9 +429,9 @@ function imgEl(x,alt){var im=el('img');im.src=x.img;im.alt=alt||'';im.loading='l
   var pb=el('div','pb');pb.appendChild(el('span','no',(i<9?'0':'')+(i+1)));pb.appendChild(el('h3',null,o.p));
   [['Mẫu đang chạy',r.length],['Tổng số ad',o.ad],['Chạy bền (trên 30 ngày)',r.filter(QUICK.win).length],['Mới lên 7 ngày',r.filter(QUICK.fresh).length]].forEach(function(l){var d=el('div','ln');d.appendChild(el('span',null,l[0]));d.appendChild(el('b',null,nf(l[1])));pb.appendChild(d)});
   var bar=el('div','pbar');['new','test','pass','win'].forEach(function(k){var n=r.filter(function(x){return x.stage===k}).length;if(!n)return;var seg=el('i');seg.style.width=(n*100/r.length)+'%';seg.style.background='var(--p'+k+')';seg.title=STAGE[k]+': '+n+' mẫu';bar.appendChild(seg)});pb.appendChild(bar);var lg=el('div','pleg');['new','test','pass','win'].forEach(function(k){var n=r.filter(function(x){return x.stage===k}).length;if(!n)return;var s=el('span');var d=el('i');d.style.background='var(--p'+k+')';s.appendChild(d);s.appendChild(document.createTextNode(STAGE[k]+' '));s.appendChild(el('b',null,n));s.title=STAGE[k]+': '+n+' mẫu';lg.appendChild(s)});pb.appendChild(lg);b.appendChild(pb);
-  b.onclick=function(){projSel.clear();projSel.add(o.p);store.set('aka-proj',[...projSel]);page='';go();toLib()};pj.appendChild(b)});
+  b.onclick=function(){projSel.clear();projSel.add(o.p);store.set('cdd-proj',[...projSel]);page='';go();toLib()};pj.appendChild(b)});
  function goWin(){quick='win';go();toLib()}$('goWin').onclick=goWin;$('goWin2').onclick=goWin;$('goProj').onclick=function(){$('du-an').scrollIntoView()};
 })();
-setExtra(ex||EXTRA.some(function(id){return $(id).value}));setView(store.get('aka-view','grid'));
+setExtra(ex||EXTRA.some(function(id){return $(id).value}));setView(store.get('cdd-view','grid'));
 })();
 </script></body></html>
