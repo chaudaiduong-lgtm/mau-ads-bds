@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://truongdangmkt-lgtm.github.io/mau-ads-bds/sitemap.xml
