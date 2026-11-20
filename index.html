@@ -245,6 +245,23 @@ h1,.hero h1,.sech h2{font-family:"Montserrat","Be Vietnam Pro",sans-serif;font-w
 .kpi:not(:disabled):hover,.kpi[aria-pressed=true]{border-color:var(--gold)}
 .kpi[aria-pressed=true]{box-shadow:0 0 0 1px var(--gold) inset,0 6px 16px -10px rgba(154,116,27,.55)}
 .panel,.card,.pcard,.howto div{border-color:color-mix(in srgb,var(--gold) 30%,var(--line))}
+/* 20/11: mau nhiet top 5 du an, top 10 mau (--h: 1 dam nhat -> nhat dan) */
+.pcard.hot,.rail .rc.hot{position:relative;border-width:2px;border-color:color-mix(in srgb,#7a1a26 calc(var(--h)*80%),#e2c27a);box-shadow:0 10px 24px -14px color-mix(in srgb,#7a1a26 calc(var(--h)*90%),transparent)}
+.pcard.hot .pb,.rail .rc.hot .tx{background:linear-gradient(180deg,color-mix(in srgb,#d8a43c calc(var(--h)*62%),var(--panel)),color-mix(in srgb,#ecd08a calc(var(--h)*40%),var(--panel)))}
+.pcard.hot::before,.rail .rc.hot::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;z-index:2;background:linear-gradient(90deg,color-mix(in srgb,#7a1a26 calc(var(--h)*100%),#e6c477),color-mix(in srgb,#c79a3a calc(var(--h)*100%),#f3e2b3))}
+.pcard.hot .no{display:inline-block;align-self:flex-start;font-weight:800;font-size:12px;color:#fff;background:color-mix(in srgb,#7a1a26 calc(var(--h)*100%),#c79a3a);border-radius:999px;padding:1px 9px}
+.pcard.hot h3{color:color-mix(in srgb,#5a0f1a calc(var(--h)*100%),var(--ink))}
+.pcard.hot .ln span,.rail .rc.hot .tx span{color:var(--ink2)}
+.rail .rc.hot .dy{background:color-mix(in srgb,#7a1a26 calc(var(--h)*92%),rgba(6,15,34,.78))}
+/* 20/11: bo loc nhan mau, o tim kiem trang */
+.search{background:#fff;border:1px solid #d3a845;box-shadow:0 2px 8px -4px rgba(138,101,22,.35)}
+.search:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px rgba(199,154,58,.25)}
+.filters select,.fbtn{background:linear-gradient(180deg,#fffaf0,#f3e2b8);border:1px solid #d3a845;color:#5a3f06;font-weight:600;box-shadow:0 2px 6px -3px rgba(138,101,22,.45)}
+.filters select:hover,.fbtn:hover{border-color:var(--brand);background:linear-gradient(180deg,#fff6e0,#ecd08a)}
+.filters select.on,.fbtn.on{background:linear-gradient(140deg,var(--brand),#9a2a36);color:#f6e7bd;border-color:var(--brand)}
+:root[data-theme=dark] .search{background:var(--panel)}
+:root[data-theme=dark] .filters select,:root[data-theme=dark] .fbtn{background:var(--soft);color:var(--chip-ink);border-color:var(--gold)}
+@media (prefers-color-scheme:dark){:root[data-theme=tu-dong-toi] .search{background:var(--panel)}:root[data-theme=tu-dong-toi] .filters select,:root[data-theme=tu-dong-toi] .fbtn{background:var(--soft);color:var(--chip-ink);border-color:var(--gold)}}
 /* 20/11: chip va nut ro hinh khoi hon */
 .facts span{background:linear-gradient(180deg,#f6e2a8,#ebcb79);color:#5a3f06;border:1px solid #d3a845;font-weight:600;padding:2px 9px;border-radius:7px;box-shadow:0 1px 2px rgba(138,101,22,.25)}
 .hooks span{background:#fff;color:var(--brand);border:1px solid color-mix(in srgb,var(--brand) 45%,transparent);font-weight:600;box-shadow:0 1px 2px rgba(122,26,38,.12)}
@@ -350,7 +367,7 @@ function facets(v,q){SEL.forEach(function(id){var s=$(id),pool=items.filter(func
  var pool=items.filter(function(x){return pass(x,v,q,'proj')});renderProjList(pool);
  var nExtra=EXTRA.filter(function(id){return v[id]}).length;$('moreF').classList.toggle('on',nExtra>0);$('moreF').firstChild.textContent=(nExtra?'Thêm bộ lọc · '+nExtra:'Thêm bộ lọc')+' '}
 function renderProjList(pool){var list=$('projList'),q=norm($('projQ').value.trim());list.textContent='';
- PROJ.forEach(function(p){if(q&&norm(p).indexOf(q)<0)return;var n=pool.filter(function(x){return x.p===p}).length;var lb=el('label',n?null:'zero'),cb=el('input');cb.type='checkbox';cb.checked=projSel.has(p);
+ var cnt={};pool.forEach(function(x){cnt[x.p]=(cnt[x.p]||0)+1});PROJ.slice().sort(function(a,b){return (cnt[b]||0)-(cnt[a]||0)||a.localeCompare(b)}).forEach(function(p){if(q&&norm(p).indexOf(q)<0)return;var n=cnt[p]||0;var lb=el('label',n?null:'zero'),cb=el('input');cb.type='checkbox';cb.checked=projSel.has(p);
   cb.onchange=function(){if(cb.checked)projSel.add(p);else projSel.delete(p);if(projSel.size===PROJ.length)projSel.clear();store.set('cdd-proj',[...projSel]);page='';go()};
   lb.appendChild(cb);lb.appendChild(el('span',null,p));lb.appendChild(el('b',null,n));list.appendChild(lb)});
  var lbl=!projSel.size?'Tất cả dự án ('+PROJ.length+')':projSel.size===1?'Dự án: '+[...projSel][0]:projSel.size+' dự án đã chọn';$('projLabel').textContent=lbl;$('projBtn').classList.toggle('on',projSel.size>0)}
@@ -428,13 +445,13 @@ function imgEl(x,alt){var im=el('img');im.src=x.img;im.alt=alt||'';im.loading='l
  var hs=$('hstats');[[Object.keys(pg).length,'page đang chạy ad'],[items.filter(QUICK.win).length,'mẫu chạy trên 30 ngày'],[items.filter(QUICK.fresh).length,'mẫu mới trong 7 ngày']].forEach(function(p){var d=el('div');d.appendChild(el('b',null,nf(p[0])));d.appendChild(el('span',null,p[1]));hs.appendChild(d)});
  var best=items.filter(function(x){return x.img}).sort(function(a,b){return b.score-a.score}),seenP={},pick=[];best.forEach(function(x){if(pick.length<6&&!seenP[x.page]){seenP[x.page]=1;pick.push(x)}});
  var cg=$('collage');pick.forEach(function(x){var t=el('div','tile');t.tabIndex=0;t.setAttribute('role','link');t.setAttribute('aria-label','Mở ad gốc của '+x.page);t.onclick=function(){openLib(x)};t.onkeydown=function(e){if(e.key==='Enter')openLib(x)};t.appendChild(imgEl(x));var cp=el('div','cap');cp.appendChild(el('b',null,x.page));cp.appendChild(el('span',null,x.days+' ngày · '+x.p));t.appendChild(cp);cg.appendChild(t)});
- var rl=$('rail'),top=items.filter(QUICK.win).sort(function(a,b){return b.score-a.score}).slice(0,10);top.forEach(function(x,i){var c=el('div','rc');c.tabIndex=0;c.setAttribute('role','link');c.onclick=function(){openLib(x)};c.onkeydown=function(e){if(e.key==='Enter')openLib(x)};
+ var rl=$('rail'),top=items.filter(QUICK.win).sort(function(a,b){return b.score-a.score}).slice(0,10);top.forEach(function(x,i){var c=el('div','rc hot');c.style.setProperty('--h',(1-i*.095).toFixed(3));c.tabIndex=0;c.setAttribute('role','link');c.onclick=function(){openLib(x)};c.onkeydown=function(e){if(e.key==='Enter')openLib(x)};
   var im=el('div','im');if(x.img)im.appendChild(imgEl(x,'Ảnh quảng cáo của '+x.page));im.appendChild(el('span','rk','#'+(i+1)+' · '+x.p));var dy=el('span','dy');dy.appendChild(el('b',null,x.days));dy.appendChild(el('small',null,'ngày'+(x.n>1?' · ×'+x.n+' ad':'')));im.appendChild(dy);c.appendChild(im);
   var tx=el('div','tx');tx.appendChild(el('span',null,x.page));tx.appendChild(el('b',null,x.title||(x.body||'').split('\n')[0]));c.appendChild(tx);rl.appendChild(c)});
  if(!top.length)rl.appendChild(el('div','empty','Chưa có mẫu nào chạy trên 30 ngày.'));
  $('projH').textContent=PROJ.length+' dự án đang có quảng cáo';
  var pj=$('projs'),rows=PROJ.map(function(p){var r=items.filter(function(x){return x.p===p});return{p:p,r:r,ad:r.reduce(function(s,x){return s+x.n},0)}}).sort(function(a,b){return b.r.length-a.r.length});
- rows.forEach(function(o,i){var r=o.r,b=el('button','pcard');b.type='button';b.title='Xem các mẫu của '+o.p;
+ rows.forEach(function(o,i){var r=o.r,b=el('button','pcard');if(i<5){b.classList.add('hot');b.style.setProperty('--h',[1,.78,.58,.4,.24][i])}b.type='button';b.title='Xem các mẫu của '+o.p;
   var cvx=r.filter(function(x){return x.img}).sort(function(a,c){return c.score-a.score})[0];var cv=el('div','cv');var pcv=(D.covers||{})[o.p];if(pcv){var pim=el('img');pim.src=pcv;pim.alt='Phối cảnh dự án '+o.p;pim.loading='lazy';pim.decoding='async';cv.appendChild(pim);cv.appendChild(el('em','pctag','Phối cảnh'))}else if(cvx)cv.appendChild(imgEl(cvx));else cv.appendChild(el('span',null,'Chưa có ảnh'));b.appendChild(cv);
   var pb=el('div','pb');pb.appendChild(el('span','no',(i<9?'0':'')+(i+1)));pb.appendChild(el('h3',null,o.p));
   [['Mẫu đang chạy',r.length],['Tổng số ad',o.ad],['Chạy bền (trên 30 ngày)',r.filter(QUICK.win).length],['Mới lên 7 ngày',r.filter(QUICK.fresh).length]].forEach(function(l){var d=el('div','ln');d.appendChild(el('span',null,l[0]));d.appendChild(el('b',null,nf(l[1])));pb.appendChild(d)});
